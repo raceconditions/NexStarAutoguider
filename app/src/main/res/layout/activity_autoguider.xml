@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+    android:id="@+id/fl"
+    >
+<net.raceconditions.nexstarautoguider.MjpegView
+    android:id="@+id/mv"
+    android:layout_width="fill_parent"
+    android:layout_height="0dip"
+    android:layout_weight="1"
+    />
+
+    <TextView
+        android:id="@+id/txtFlow"
+        android:background="#07000000"
+        android:textSize="14sp"
+        android:singleLine="true"
+        android:textColor="#FFFFFF"
+        android:text="FLOW: "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>
