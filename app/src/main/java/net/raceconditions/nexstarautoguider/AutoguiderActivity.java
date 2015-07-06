@@ -47,7 +47,6 @@ public class AutoguiderActivity extends ActionBarActivity {
         if(!inited)
             Log.d("Autoguider", "Not inited");
         String URL = "http://camera.raceconditions.net/?action=stream";
-        //URL = "http://141.89.114.78/cgi-bin/video640x480.mjpg?dummy=garb";
 
         mv = new MjpegView(this);
         setContentView(mv);
