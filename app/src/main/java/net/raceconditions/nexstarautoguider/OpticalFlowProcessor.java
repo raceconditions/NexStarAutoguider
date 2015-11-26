@@ -36,6 +36,7 @@ public class OpticalFlowProcessor {
         currentTimeMillis = System.currentTimeMillis();
         double velocityX = 0.0;
         double velocityY = 0.0;
+        long milliseconds = 0;
 
         try {
             thisFrameGray = getGrayscaleFrameFromBitmap(bm);
@@ -73,12 +74,13 @@ public class OpticalFlowProcessor {
                 //Log.d("MjpegView err", err.dump());
                 Log.d("VarianceX", Double.toString(varianceX));
                 Log.d("VarianceY", Double.toString(varianceY));
-                Log.d("Time", Long.toString(currentTimeMillis - lastTimeMillis));
 
-                velocityX = varianceX/(currentTimeMillis - lastTimeMillis);
-                velocityY = varianceY/(currentTimeMillis - lastTimeMillis);
+                milliseconds = currentTimeMillis - lastTimeMillis;
+                velocityX = varianceX/ milliseconds;
+                velocityY = varianceY/ milliseconds;
                 Log.d("VelocityX", Double.toString(velocityX));
                 Log.d("VelocityY", Double.toString(velocityY));
+                Log.d("Time", Long.toString(milliseconds));
             }
         } catch(Exception ex) {
             Log.e("MjpegView", "Something went wrong", ex);
@@ -88,7 +90,7 @@ public class OpticalFlowProcessor {
         lastFrame = thisFrameGray.clone();
         lastCorners.fromArray(thisCorners.toArray());
 
-        return new Velocity(velocityX, velocityY);
+        return new Velocity(velocityX, velocityY, milliseconds);
 
         //Log.d("Last Features 2", "#" + lastCorners.dump());
     }

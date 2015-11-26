@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_settings">Connection Settings</string>
+    <!-- Strings related to Settings -->
+    <string name="pref_host_display_name">Telescope Host</string>
+    <string name="pref_port_number_display_name">Telescope Port</string>
+    <string name="pref_port_camera_url_display_name">Camera URL</string>
+    <string name="pref_port_slew_factor_display_name">Slew Factor</string>
+</resources>

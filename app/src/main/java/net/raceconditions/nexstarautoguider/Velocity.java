@@ -6,9 +6,11 @@ package net.raceconditions.nexstarautoguider;
 public class Velocity {
     double velX;
     double velY;
-    public Velocity(double velX, double velY){
+    long milliseconds;
+    public Velocity(double velX, double velY, long milliseconds){
         this.velX = velX;
         this.velY = velY;
+        this.milliseconds = milliseconds;
     }
 
     public double getVelX(){
@@ -18,4 +20,6 @@ public class Velocity {
     public double getVelY(){
         return velY;
     }
+
+    public long getMilliseconds() { return milliseconds; }
 }

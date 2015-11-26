@@ -1,95 +1,121 @@
 package net.raceconditions.nexstarautoguider;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+
+import org.opencv.android.OpenCVLoader;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import java.io.IOException;
-import java.net.URI;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
-
-import net.raceconditions.nexstarautoguider.MjpegInputStream;
-import net.raceconditions.nexstarautoguider.MjpegView;
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import javax.xml.datatype.Duration;
 
-
-public class AutoguiderActivity extends ActionBarActivity {
-    private static final String TAG = "MjpegActivity";
+public class AutoguiderActivity extends FragmentActivity {
     private MjpegView mv;
     private Context context;
+    private String host = "http://0.0.0.0";
+    private AsyncMjpegStreamTask streamTask;
+    private boolean isRunning = false;
 
     public void onCreate(Bundle savedInstanceState) {
         context = this;
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         boolean inited = OpenCVLoader.initDebug();
         if(!inited)
             Log.d("Autoguider", "Not inited");
-        String URL = "http://camera.raceconditions.net/?action=stream";
 
-        mv = new MjpegView(this);
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(context);
+
+        host = sharedPrefs.getString("camera_url", host);
+
+        //String URL = "http://camera.raceconditions.net/?action=stream";
+        mv = new MjpegView(this, new MjpegViewMessageHandler() {
+            @Override
+            public void onMessage(String message) {
+                toastMessage(message);
+            }
+        });
         setContentView(mv);
 
-        new DoRead().execute(URL);
+        streamTask = getAsyncMjpegStreamTask();
+    }
+
+    private AsyncMjpegStreamTask getAsyncMjpegStreamTask() {
+        return new AsyncMjpegStreamTask(new MjpegStreamHandler() {
+            @Override
+            public void onStreamInitialized(MjpegInputStream inputStream) {
+                mv.setSource(inputStream);
+                mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
+                mv.setShowOverlay(true);
+            }
+
+            @Override
+            public void onStreamFailed() {
+                toastMessage("Stream failed to start");
+            }
+        });
+    }
+
+    private void toastMessage(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public void onPause() {
         super.onPause();
         mv.stopPlayback();
+        streamTask.cancel(true);
     }
 
-    public class DoRead extends AsyncTask<String, Void, MjpegInputStream> {
-        protected MjpegInputStream doInBackground(String... url) {
-            //TODO: if camera has authentication deal with it and don't just not work
-            HttpResponse res = null;
-            DefaultHttpClient httpclient = new DefaultHttpClient();
-            Log.d(TAG, "1. Sending http request");
-            try {
-                res = httpclient.execute(new HttpGet(URI.create(url[0])));
-                Log.d(TAG, "2. Request finished, status = " + res.getStatusLine().getStatusCode());
-                if(res.getStatusLine().getStatusCode()==401){
-                    //You must turn off camera User Access Control before this will work
-                    return null;
-                }
-                return new MjpegInputStream(res.getEntity().getContent());
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-                Log.d(TAG, "Request failed-ClientProtocolException", e);
-                //Error connecting to camera
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.d(TAG, "Request failed-IOException", e);
-                //Error connecting to camera
-            }
-
-            return null;
+    public void startPlayback() {
+        if(!isRunning) {
+            streamTask = getAsyncMjpegStreamTask();
+            streamTask.execute(host);
+            isRunning = true;
+        } else {
+            toastMessage("AutoGuider is already running");
         }
+    }
 
-        protected void onPostExecute(MjpegInputStream result) {
-            mv.setSource(result);
-            mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
-            mv.showFps(true);
+
+    private static final int RESULT_SETTINGS = 1;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_autoguider, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent i = new Intent(this, SettingsActivity.class);
+                startActivityForResult(i, RESULT_SETTINGS);
+                break;
+            case R.id.action_stop:
+                mv.stopPlayback();
+                isRunning = false;
+                toastMessage("AutoGuider has been stopped");
+                break;
+            case R.id.action_start:
+                startPlayback();
+                break;
         }
+        return true;
     }
 }
