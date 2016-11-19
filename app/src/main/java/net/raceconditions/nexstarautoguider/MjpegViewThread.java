@@ -136,8 +136,8 @@ public class MjpegViewThread extends Thread {
             }
         }
         //stop any current movement of the telescope before shutdown
-        sendSlewCommand(SlewSerializer.Axis.ALT, SlewSerializer.Direction.POS, 0);
-        sendSlewCommand(SlewSerializer.Axis.AZM, SlewSerializer.Direction.POS, 0);
+        sendSlewCommand(SlewSerializer.Axis.ALT, 0);
+        sendSlewCommand(SlewSerializer.Axis.AZM, 0);
         stopConnection();
     }
 
