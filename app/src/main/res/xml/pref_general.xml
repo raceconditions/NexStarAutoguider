@@ -20,7 +20,7 @@
         android:key="slew_factor"
         android:title="@string/pref_port_slew_factor_display_name"
         android:selectAllOnFocus="true"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:capitalize="none"
         android:singleLine="true"
         android:maxLines="1" />
@@ -28,8 +28,8 @@
         android:key="camera_url"
         android:title="@string/pref_port_camera_url_display_name"
         android:selectAllOnFocus="true"
-        android:inputType="textCapCharacters"
-        android:capitalize="characters"
+        android:inputType="textNoSuggestions"
+        android:capitalize="none"
         android:singleLine="true"
         android:maxLines="1" />
 </PreferenceScreen>

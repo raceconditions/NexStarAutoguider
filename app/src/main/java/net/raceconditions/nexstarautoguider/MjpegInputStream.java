@@ -17,9 +17,11 @@ public class MjpegInputStream extends DataInputStream {
     private final byte[] SOI_MARKER = {(byte) 0xFF, (byte) 0xD8};
     private final byte[] EOF_MARKER = {(byte) 0xFF, (byte) 0xD9};
     private final String CONTENT_LENGTH = "Content-Length";
+    private final String X_TIMESTAMP = "X-Timestamp";
     private final static int HEADER_MAX_LENGTH = 100;
     private final static int FRAME_MAX_LENGTH = 40000 + HEADER_MAX_LENGTH;
     private int mContentLength = -1;
+    private double mEpochTimestamp = 0d;
 
     public MjpegInputStream(InputStream in) {
         super(new BufferedInputStream(in, FRAME_MAX_LENGTH));
@@ -47,21 +49,23 @@ public class MjpegInputStream extends DataInputStream {
         return (end < 0) ? (-1) : (end - sequence.length);
     }
 
-    private int parseContentLength(byte[] headerBytes) throws IOException, NumberFormatException {
+    private Properties parseHeaderProperties(byte[] headerBytes) throws IOException, NumberFormatException {
         ByteArrayInputStream headerIn = new ByteArrayInputStream(headerBytes);
         Properties props = new Properties();
         props.load(headerIn);
-        return Integer.parseInt(props.getProperty(CONTENT_LENGTH));
+        return props;
     }
 
-    public Bitmap readMjpegFrame() throws IOException {
+    public BitmapFrame readMjpegFrame() throws IOException {
         mark(FRAME_MAX_LENGTH);
         int headerLen = getStartOfSequence(this, SOI_MARKER);
         reset();
         byte[] header = new byte[headerLen];
         readFully(header);
         try {
-            mContentLength = parseContentLength(header);
+            Properties props = parseHeaderProperties(header);
+            mEpochTimestamp = Double.parseDouble(props.getProperty(X_TIMESTAMP));
+            mContentLength = Integer.parseInt(props.getProperty(CONTENT_LENGTH));
         } catch (NumberFormatException nfe) {
             nfe.getStackTrace();
             Log.d(TAG, "catch NumberFormatException hit", nfe);
@@ -71,6 +75,6 @@ public class MjpegInputStream extends DataInputStream {
         byte[] frameData = new byte[mContentLength];
         skipBytes(headerLen);
         readFully(frameData);
-        return BitmapFactory.decodeStream(new ByteArrayInputStream(frameData));
+        return new BitmapFrame(BitmapFactory.decodeStream(new ByteArrayInputStream(frameData)), mEpochTimestamp);
     }
 }

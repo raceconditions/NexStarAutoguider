@@ -22,24 +22,24 @@ public class OpticalFlowProcessor {
     double minDistance = 10;
     int maxCorners = 25;
 
-    long currentTimeMillis;
-    long lastTimeMillis;
-    long lastFeatureSelectionMillis;
+    double currentTimestamp;
+    double lastTimestamp;
+    double lastFeatureSelectionTimestamp;
     
     public OpticalFlowProcessor() {
         lastCorners = new MatOfPoint();
     }
 
-    public Velocity findVelocity(Bitmap bm) {
+    public Velocity findVelocity(BitmapFrame bitmapFrame) {
         Mat thisFrameGray = new Mat();
         MatOfPoint thisCorners = new MatOfPoint();
-        currentTimeMillis = System.currentTimeMillis();
+        currentTimestamp = bitmapFrame.getTimestamp();
         double velocityX = 0.0;
         double velocityY = 0.0;
-        long milliseconds = 0;
+        double milliseconds = 0;
 
         try {
-            thisFrameGray = getGrayscaleFrameFromBitmap(bm);
+            thisFrameGray = getGrayscaleFrameFromBitmap(bitmapFrame.getBitmap());
             thisCorners = findFeaturesToTrack(thisFrameGray);
 
             if(lastFrame != null) {
@@ -67,6 +67,7 @@ public class OpticalFlowProcessor {
                     }
                 }
 
+                //multiply by 10000 to get a readable number
                 double varianceX = totalVarianceX / totalPoints * 10000;
                 double varianceY = totalVarianceY / totalPoints * 10000;
 
@@ -75,18 +76,18 @@ public class OpticalFlowProcessor {
                 Log.d("VarianceX", Double.toString(varianceX));
                 Log.d("VarianceY", Double.toString(varianceY));
 
-                milliseconds = currentTimeMillis - lastTimeMillis;
+                milliseconds = (currentTimestamp - lastTimestamp) * 1000;
                 velocityX = varianceX/ milliseconds;
                 velocityY = varianceY/ milliseconds;
                 Log.d("VelocityX", Double.toString(velocityX));
                 Log.d("VelocityY", Double.toString(velocityY));
-                Log.d("Time", Long.toString(milliseconds));
+                Log.d("Time", Double.toString(milliseconds));
             }
         } catch(Exception ex) {
             Log.e("MjpegView", "Something went wrong", ex);
         }
 
-        lastTimeMillis = currentTimeMillis;
+        lastTimestamp = currentTimestamp;
         lastFrame = thisFrameGray.clone();
         lastCorners.fromArray(thisCorners.toArray());
 
@@ -105,8 +106,8 @@ public class OpticalFlowProcessor {
         MatOfPoint corners = new MatOfPoint();
         
         //TODO: Determine when we need to refresh features to track. Random recommendation is every 5 frames?
-        if(lastFrame == null || lastFeatureSelectionMillis <= currentTimeMillis - 1000) {
-            lastFeatureSelectionMillis = currentTimeMillis;
+        if(lastFrame == null || lastFeatureSelectionTimestamp <= currentTimestamp - 1000) {
+            lastFeatureSelectionTimestamp = currentTimestamp;
             Imgproc.goodFeaturesToTrack(grayFrame, corners, maxCorners, qualityLevel, minDistance);
         }
         return corners;

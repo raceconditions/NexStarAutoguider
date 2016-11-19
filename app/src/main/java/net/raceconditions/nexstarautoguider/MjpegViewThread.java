@@ -21,6 +21,8 @@ import net.raceconditions.nexstarautoguider.telescope.TcpClient;
 import net.raceconditions.nexstarautoguider.telescope.TcpConnectTask;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MjpegViewThread extends Thread {
     private static final String TAG = "MjpegViewThread";
@@ -37,6 +39,7 @@ public class MjpegViewThread extends Thread {
     private MjpegViewMessageHandler messageHandler;
     private TcpClient mTcpClient;
     private Context context;
+    private List<Velocity> recentVelocities = new ArrayList<Velocity>();
 
     private boolean surfaceReady = false;
     private boolean isStreaming = false;
@@ -80,7 +83,7 @@ public class MjpegViewThread extends Thread {
                 .getDefaultSharedPreferences(context);
 
         try {
-            slewFactor = Integer.valueOf(sharedPrefs.getString("slew_factor", String.valueOf(slewFactor)));
+            slewFactor = Double.valueOf(sharedPrefs.getString("slew_factor", String.valueOf(slewFactor)));
         }
         catch (Exception ex){
             messageHandler.onMessage("Unable to get settings value for slew factor");
@@ -111,12 +114,13 @@ public class MjpegViewThread extends Thread {
                     displayCanvas = mSurfaceHolder.lockCanvas();
                     synchronized (mSurfaceHolder) {
                         try {
-                            mjpegFrame = mjpegInputStream.readMjpegFrame();
+                            BitmapFrame bitmapFrame = mjpegInputStream.readMjpegFrame();
+                            mjpegFrame = bitmapFrame.getBitmap();
 
                             videoDisplayRectangle = createVideoDisplayRectangle(mjpegFrame.getWidth(), mjpegFrame.getHeight());
                             displayCanvas.drawColor(Color.BLACK);
                             displayCanvas.drawBitmap(mjpegFrame, null, videoDisplayRectangle, displayPaint);
-                            v = opticalFlowProcessor.findVelocity(mjpegFrame);
+                            v = opticalFlowProcessor.findVelocity(bitmapFrame);
                             slewTelescope(v);
                             createDetailOverlay(videoDisplayRectangle, v);
                         } catch (IOException e) {
@@ -131,6 +135,7 @@ public class MjpegViewThread extends Thread {
                 }
             }
         }
+        //stop any current movement of the telescope before shutdown
         sendSlewCommand(SlewSerializer.Axis.ALT, SlewSerializer.Direction.POS, 0);
         sendSlewCommand(SlewSerializer.Axis.AZM, SlewSerializer.Direction.POS, 0);
         stopConnection();
@@ -187,7 +192,7 @@ public class MjpegViewThread extends Thread {
                 readyToSlew = true;
             }
 
-            bmpOverlay = createBitmapFromString(overlayPaint, currentFramesPerSecond + "fps\n" + v.getMilliseconds() + "ms\nVelX: " + Double.toString(v.getVelX()) + "\nVelY: " + Double.toString(v.getVelY()));
+            bmpOverlay = createBitmapFromString(overlayPaint, currentFramesPerSecond + "fps\n" + Double.toString(v.getMilliseconds()) + "ms\nVelX: " + Double.toString(v.getVelX()) + "\nVelY: " + Double.toString(v.getVelY()));
         }
     }
 
@@ -251,22 +256,13 @@ public class MjpegViewThread extends Thread {
     }
 
     private void slewTelescope(Velocity v) {
-        if(frameCounter == 0) {
-            currentXFactored += (int)Math.floor(v.getVelX() * slewFactor);
-            currentYFactored += (int)Math.floor(v.getVelY() * slewFactor);
-            if(v.getVelX() > 0) {
-                sendSlewCommand(SlewSerializer.Axis.AZM, SlewSerializer.Direction.POS, currentXFactored);
-            }
-            else if(v.getVelX() < 0) {
-                sendSlewCommand(SlewSerializer.Axis.AZM, SlewSerializer.Direction.NEG, (Math.abs(currentXFactored)));
-            }
+        currentXFactored += (int) Math.floor(v.getVelX() * slewFactor);
+        currentYFactored += (int) Math.floor(v.getVelY() * slewFactor);
 
-            if(v.getVelY() > 0) {
-                sendSlewCommand(SlewSerializer.Axis.ALT, SlewSerializer.Direction.POS, currentYFactored);
-            }
-            else if(v.getVelX() < 0) {
-                sendSlewCommand(SlewSerializer.Axis.ALT, SlewSerializer.Direction.NEG, (Math.abs(currentYFactored)));
-            }
+        if(readyToSlew) {
+            readyToSlew = false;
+            sendSlewCommand(SlewSerializer.Axis.AZM, currentXFactored);
+            sendSlewCommand(SlewSerializer.Axis.ALT, currentYFactored);
         }
 
     }
@@ -300,14 +296,14 @@ public class MjpegViewThread extends Thread {
     }
 
     /**
-     * Send the current dateTime and GPS location to telescope
+     * Slew the telescope on axis and speed in arcSeconds
      */
-    private void sendSlewCommand(SlewSerializer.Axis axis, SlewSerializer.Direction direction, int arcSeconds) {
+    private void sendSlewCommand(SlewSerializer.Axis axis, int arcSeconds) {
         if(!isConnected) {
             return;
         }
         try {
-            byte[] slew = SlewSerializer.serialize(axis, direction, arcSeconds);
+            byte[] slew = SlewSerializer.serialize(axis, arcSeconds >= 0 ? SlewSerializer.Direction.POS : SlewSerializer.Direction.NEG, Math.abs(arcSeconds));
             mTcpClient.sendMessage(slew);
             messageHandler.onMessage("Slew command sent successfully");
         } catch (final Exception ex) {
