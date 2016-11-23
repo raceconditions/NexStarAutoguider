@@ -3,6 +3,7 @@ package net.raceconditions.nexstarautoguider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
@@ -36,6 +37,7 @@ public class AutoguiderActivity extends FragmentActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         context = this;
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
@@ -59,14 +61,14 @@ public class AutoguiderActivity extends FragmentActivity {
                 toastMessage(message, length);
             }
         });
-        masterLayout.addView(mv);
         LinearLayout controlsLayout = new LinearLayout(this);
         ImageButton guideButton = new ImageButton(this);
         guideButton.setImageResource(R.mipmap.guide_icon);
         guideButton.setOnClickListener(guideButtonOnClickListener);
-        guideButton.setBackgroundColor(Color.WHITE);
+        guideButton.setBackgroundColor(Color.TRANSPARENT);
         controlsLayout.addView(guideButton);
         masterLayout.addView(controlsLayout);
+        masterLayout.addView(mv);
         setContentView(masterLayout);
 
         streamTask = getAsyncMjpegStreamTask();
