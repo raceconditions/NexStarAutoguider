@@ -38,6 +38,7 @@ public class AutoguiderActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         context = this;
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         boolean inited = OpenCVLoader.initDebug();
@@ -70,17 +71,19 @@ public class AutoguiderActivity extends FragmentActivity {
         masterLayout.addView(controlsLayout);
         setContentView(masterLayout);
 
-        streamTask = getAsyncMjpegStreamTask();
+        //streamTask = getAsyncMjpegStreamTask();
     }
 
     private View.OnClickListener guideButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if(isGuiding) {
+                v.getBackground().setAlpha(255);
                 toastMessage("AutoGuiding stopped", Toast.LENGTH_SHORT);
                 mv.stopGuiding();
                 isGuiding = false;
             } else {
+                v.getBackground().setAlpha(128);
                 toastMessage("AutoGuiding started", Toast.LENGTH_SHORT);
                 mv.startGuiding();
                 isGuiding = true;
@@ -133,11 +136,6 @@ public class AutoguiderActivity extends FragmentActivity {
         }
     }
 
-    @Override
-    public void onResume() {
-        startPlayback();
-    }
-
     private static final int RESULT_SETTINGS = 1;
 
     @Override
@@ -165,6 +163,7 @@ public class AutoguiderActivity extends FragmentActivity {
                 mv.stopGuiding();
                 mv.stopPlayback();
                 this.finish();
+                System.exit(0);
                 android.os.Process.killProcess(android.os.Process.myPid());
                 break;
         }
