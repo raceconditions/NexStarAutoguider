@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
 import net.raceconditions.nexstarautoguider.telescope.ConnectionEventHandler;
 import net.raceconditions.nexstarautoguider.telescope.SlewSerializer;
@@ -305,10 +306,9 @@ public class MjpegViewThread extends Thread {
         try {
             byte[] slew = SlewSerializer.serialize(axis, arcSeconds >= 0 ? SlewSerializer.Direction.POS : SlewSerializer.Direction.NEG, Math.abs(arcSeconds));
             mTcpClient.sendMessage(slew);
-            messageHandler.onMessage("Slew command sent successfully");
         } catch (final Exception ex) {
             Log.e("GPSLocationSync", "Failed to send slew command", ex);
-            messageHandler.onMessage("Failed to send slew command");
+            messageHandler.onMessage("Failed to send slew command", Toast.LENGTH_SHORT);
         }
     }
 

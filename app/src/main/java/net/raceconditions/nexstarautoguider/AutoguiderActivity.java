@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
 import org.opencv.android.OpenCVLoader;
@@ -13,7 +12,6 @@ import org.opencv.android.OpenCVLoader;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -39,11 +37,14 @@ public class AutoguiderActivity extends FragmentActivity {
 
         host = sharedPrefs.getString("camera_url", host);
 
-        //String URL = "http://camera.raceconditions.net/?action=stream";
         mv = new MjpegView(this, new MjpegViewMessageHandler() {
             @Override
             public void onMessage(String message) {
                 toastMessage(message);
+            }
+            @Override
+            public void onMessage(String message, int length) {
+                toastMessage(message, length);
             }
         });
         setContentView(mv);
@@ -72,6 +73,15 @@ public class AutoguiderActivity extends FragmentActivity {
             @Override
             public void run() {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void toastMessage(final String message, final int length) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, message, length).show();
             }
         });
     }
