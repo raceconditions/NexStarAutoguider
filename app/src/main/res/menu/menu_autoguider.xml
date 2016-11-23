@@ -7,4 +7,6 @@
         android:orderInCategory="98" app:showAsAction="never" />
     <item android:id="@+id/action_stop" android:title="@string/action_stop"
         android:orderInCategory="99" app:showAsAction="never" />
+    <item android:id="@+id/action_exit" android:title="@string/action_exit"
+        android:orderInCategory="101" app:showAsAction="never" />
 </menu>

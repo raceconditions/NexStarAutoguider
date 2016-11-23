@@ -59,7 +59,7 @@ public class AutoguiderActivity extends FragmentActivity {
                 toastMessage(message, length);
             }
         });
-        layout.addView(mv);
+        //layout.addView(mv);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.height = 200;
         lp.width = 200;

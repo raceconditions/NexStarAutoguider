@@ -4,16 +4,18 @@ android:layout_width="fill_parent"
 android:layout_height="fill_parent"
     android:id="@+id/fl"
     >
-<net.raceconditions.nexstarautoguider.MjpegView
-    android:id="@+id/mv"
-    android:layout_width="fill_parent"
-    android:layout_height="0dip"
-    android:layout_weight="1"
-    />
 
     <ImageButton
         android:id="@+id/guide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/guide_icon"/>
+
+    <net.raceconditions.nexstarautoguider.MjpegView
+    android:id="@+id/mv"
+    android:layout_width="fill_parent"
+    android:layout_height="0dip"
+    android:layout_weight="1"
+    />
+
 </LinearLayout>
