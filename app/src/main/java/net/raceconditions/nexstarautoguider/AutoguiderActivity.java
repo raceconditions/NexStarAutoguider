@@ -37,7 +37,6 @@ public class AutoguiderActivity extends FragmentActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         context = this;
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
@@ -158,6 +157,7 @@ public class AutoguiderActivity extends FragmentActivity {
                 break;
             case R.id.action_exit:
                 this.finish();
+                System.exit(0);
                 break;
         }
         return true;
