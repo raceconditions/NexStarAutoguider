@@ -64,7 +64,6 @@ public class AutoguiderActivity extends FragmentActivity {
         ImageButton guideButton = new ImageButton(this);
         guideButton.setImageResource(R.mipmap.guide_icon);
         guideButton.setOnClickListener(guideButtonOnClickListener);
-        guideButton.setLayoutParams(lp);
         guideButton.setBackgroundColor(Color.WHITE);
         controlsLayout.addView(guideButton);
         masterLayout.addView(controlsLayout);
