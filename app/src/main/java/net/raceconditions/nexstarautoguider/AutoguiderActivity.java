@@ -37,7 +37,7 @@ public class AutoguiderActivity extends FragmentActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         context = this;
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
@@ -67,8 +67,8 @@ public class AutoguiderActivity extends FragmentActivity {
         guideButton.setOnClickListener(guideButtonOnClickListener);
         guideButton.setBackgroundColor(Color.TRANSPARENT);
         controlsLayout.addView(guideButton);
-        masterLayout.addView(controlsLayout);
         masterLayout.addView(mv);
+        masterLayout.addView(controlsLayout);
         setContentView(masterLayout);
 
         streamTask = getAsyncMjpegStreamTask();
@@ -78,8 +78,10 @@ public class AutoguiderActivity extends FragmentActivity {
         @Override
         public void onClick(View v) {
             if(isGuiding) {
+                toastMessage("AutoGuiding stopped", Toast.LENGTH_SHORT);
                 mv.stopGuiding();
             } else {
+                toastMessage("AutoGuiding started", Toast.LENGTH_SHORT);
                 mv.startGuiding();
             }
         }
