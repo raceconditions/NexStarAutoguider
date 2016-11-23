@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
@@ -19,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 
@@ -57,9 +59,12 @@ public class AutoguiderActivity extends FragmentActivity {
             }
         });
         layout.addView(mv);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         ImageButton guideButton = new ImageButton(context);
         guideButton.setImageResource(R.mipmap.guide_icon);
         guideButton.setOnClickListener(guideButtonOnClickListener);
+        guideButton.setLayoutParams(lp);
+        guideButton.setBackgroundColor(Color.WHITE);
         layout.addView(guideButton);
         setContentView(layout);
 
@@ -109,12 +114,6 @@ public class AutoguiderActivity extends FragmentActivity {
                 Toast.makeText(context, message, length).show();
             }
         });
-    }
-
-    public void onPause() {
-        super.onPause();
-        mv.stopPlayback();
-        streamTask.cancel(true);
     }
 
     public void startPlayback() {
