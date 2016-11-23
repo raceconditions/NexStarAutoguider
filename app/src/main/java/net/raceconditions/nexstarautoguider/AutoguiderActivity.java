@@ -133,6 +133,11 @@ public class AutoguiderActivity extends FragmentActivity {
         }
     }
 
+    @Override
+    public void onResume() {
+        startPlayback();
+    }
+
     private static final int RESULT_SETTINGS = 1;
 
     @Override
