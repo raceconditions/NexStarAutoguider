@@ -3,8 +3,10 @@ package net.raceconditions.nexstarautoguider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
 import org.opencv.android.OpenCVLoader;
@@ -12,7 +14,9 @@ import org.opencv.android.OpenCVLoader;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
@@ -37,6 +41,8 @@ public class AutoguiderActivity extends FragmentActivity {
 
         host = sharedPrefs.getString("camera_url", host);
 
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
         mv = new MjpegView(this, new MjpegViewMessageHandler() {
             @Override
             public void onMessage(String message) {
@@ -47,7 +53,8 @@ public class AutoguiderActivity extends FragmentActivity {
                 toastMessage(message, length);
             }
         });
-        setContentView(mv);
+        layout.addView(mv);
+        setContentView(layout);
 
         streamTask = getAsyncMjpegStreamTask();
     }
