@@ -47,7 +47,8 @@ public class AsyncMjpegStreamTask extends AsyncTask<String, Void, MjpegInputStre
     }
 
     protected void onPostExecute(MjpegInputStream inputStream) {
-        handler.onStreamInitialized(inputStream);
-
+        if(inputStream != null) {
+            handler.onStreamInitialized(inputStream);
+        }
     }
 }

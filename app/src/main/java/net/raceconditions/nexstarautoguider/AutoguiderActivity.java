@@ -148,6 +148,7 @@ public class AutoguiderActivity extends FragmentActivity {
                 startActivityForResult(i, RESULT_SETTINGS);
                 break;
             case R.id.action_stop:
+                mv.stopGuiding();
                 mv.stopPlayback();
                 isRunning = false;
                 toastMessage("AutoGuider has been stopped");
@@ -156,8 +157,10 @@ public class AutoguiderActivity extends FragmentActivity {
                 startPlayback();
                 break;
             case R.id.action_exit:
+                mv.stopGuiding();
+                mv.stopPlayback();
                 this.finish();
-                System.exit(0);
+                android.os.Process.killProcess(android.os.Process.myPid());
                 break;
         }
         return true;

@@ -3,8 +3,8 @@
 
     <string name="app_name">NexStar Autoguider</string>
     <string name="action_settings">Settings</string>
-    <string name="action_start">Start</string>
-    <string name="action_stop">Stop</string>
+    <string name="action_start">Connect Stream</string>
+    <string name="action_stop">Disconnect Stream</string>
     <string name="action_exit">Exit</string>
 
 </resources>
