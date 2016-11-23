@@ -80,9 +80,11 @@ public class AutoguiderActivity extends FragmentActivity {
             if(isGuiding) {
                 toastMessage("AutoGuiding stopped", Toast.LENGTH_SHORT);
                 mv.stopGuiding();
+                isGuiding = false;
             } else {
                 toastMessage("AutoGuiding started", Toast.LENGTH_SHORT);
                 mv.startGuiding();
+                isGuiding = true;
             }
         }
     };
@@ -94,10 +96,12 @@ public class AutoguiderActivity extends FragmentActivity {
                 mv.setSource(inputStream);
                 mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
                 mv.setShowOverlay(true);
+                isRunning = true;
             }
 
             @Override
             public void onStreamFailed() {
+                isRunning = false;
                 toastMessage("Stream failed to start");
             }
         });
@@ -125,12 +129,10 @@ public class AutoguiderActivity extends FragmentActivity {
         if(!isRunning) {
             streamTask = getAsyncMjpegStreamTask();
             streamTask.execute(host);
-            isRunning = true;
         } else {
             toastMessage("AutoGuider is already running");
         }
     }
-
 
     private static final int RESULT_SETTINGS = 1;
 
@@ -153,6 +155,9 @@ public class AutoguiderActivity extends FragmentActivity {
                 break;
             case R.id.action_start:
                 startPlayback();
+                break;
+            case R.id.action_exit:
+                this.finish();
                 break;
         }
         return true;

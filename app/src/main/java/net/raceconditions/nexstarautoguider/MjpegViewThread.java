@@ -126,8 +126,9 @@ public class MjpegViewThread extends Thread {
                             slewTelescope(v);
                             createDetailOverlay(videoDisplayRectangle, v);
                         } catch (IOException e) {
-                            e.getStackTrace();
                             Log.d(TAG, "catch IOException hit in run", e);
+                        } catch (Exception e) {
+                            Log.d(TAG, "catch Exception hit in run", e);
                         }
                     }
                 } finally {
