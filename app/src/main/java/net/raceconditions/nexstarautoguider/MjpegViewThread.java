@@ -47,6 +47,7 @@ public class MjpegViewThread extends Thread {
     private boolean showOverlay = false;
     private boolean isConnected = false;
     private boolean readyToSlew = false;
+    private boolean isGuiding = false;
     private Paint overlayPaint;
     private int overlayTextColor;
     private int overlayBackgroundColor;
@@ -142,6 +143,9 @@ public class MjpegViewThread extends Thread {
         stopConnection();
     }
 
+    public void startGuiding() { this.isGuiding = true;}
+
+    public void stopGuiding() { this.isGuiding = false;}
 
     public void setStreaming(boolean isStreaming) {
         this.isStreaming = isStreaming;
@@ -257,15 +261,16 @@ public class MjpegViewThread extends Thread {
     }
 
     private void slewTelescope(Velocity v) {
-        currentXFactored += (int) Math.floor(v.getVelX() * slewFactor);
-        currentYFactored += (int) Math.floor(v.getVelY() * slewFactor);
+        if(isGuiding) {
+            currentXFactored += (int) Math.floor(v.getVelX() * slewFactor);
+            currentYFactored += (int) Math.floor(v.getVelY() * slewFactor);
 
-        if(readyToSlew) {
-            readyToSlew = false;
-            sendSlewCommand(SlewSerializer.Axis.AZM, currentXFactored);
-            sendSlewCommand(SlewSerializer.Axis.ALT, currentYFactored);
+            if (readyToSlew) {
+                readyToSlew = false;
+                sendSlewCommand(SlewSerializer.Axis.AZM, currentXFactored);
+                sendSlewCommand(SlewSerializer.Axis.ALT, currentYFactored);
+            }
         }
-
     }
 
     /**

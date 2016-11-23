@@ -14,8 +14,10 @@ import org.opencv.android.OpenCVLoader;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ public class AutoguiderActivity extends FragmentActivity {
     private String host = "http://0.0.0.0";
     private AsyncMjpegStreamTask streamTask;
     private boolean isRunning = false;
+    private boolean isGuiding = false;
 
     public void onCreate(Bundle savedInstanceState) {
         context = this;
@@ -54,10 +57,25 @@ public class AutoguiderActivity extends FragmentActivity {
             }
         });
         layout.addView(mv);
+        ImageButton guideButton = new ImageButton(context);
+        guideButton.setImageResource(R.mipmap.guide_icon);
+        guideButton.setOnClickListener(guideButtonOnClickListener);
+        layout.addView(guideButton);
         setContentView(layout);
 
         streamTask = getAsyncMjpegStreamTask();
     }
+
+    private View.OnClickListener guideButtonOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(isGuiding) {
+                mv.stopGuiding();
+            } else {
+                mv.startGuiding();
+            }
+        }
+    };
 
     private AsyncMjpegStreamTask getAsyncMjpegStreamTask() {
         return new AsyncMjpegStreamTask(new MjpegStreamHandler() {
